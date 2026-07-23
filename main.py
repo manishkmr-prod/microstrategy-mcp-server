@@ -3,27 +3,12 @@ from api.authentication import login
 from api.projects import list_projects
 from api.folders import list_root_folders, browse_folder
 from api.search import search_objects
+from api.object_details import get_object_details
 
 from utils.menu import Menu
+from utils.object_types import ObjectType
 
-
-def display_folder_contents(client, folder):
-    """
-    Browse and display a folder.
-    """
-
-    print("\n" + "=" * 80)
-    print(folder["name"])
-    print("=" * 80)
-
-    contents = browse_folder(client, folder["id"])
-
-    if not contents:
-        print("Folder is empty.")
-        return
-
-    for index, obj in enumerate(contents, start=1):
-        print(f"{index}. {obj['name']} ({obj['id']})")
+import json
 
 
 def main():
@@ -37,7 +22,7 @@ def main():
     print("Login Successful\n")
 
     # --------------------------------------------------
-    # Project Selection
+    # Select Project
     # --------------------------------------------------
 
     projects = list_projects(client)
@@ -51,33 +36,66 @@ def main():
     print(selected_project["name"])
 
     # --------------------------------------------------
-    # Root Folder Selection
+    # Browse Root Folder
     # --------------------------------------------------
 
     folders = list_root_folders(client)
 
-    selection = Menu.select_root_folder(folders)
+    selected_folder = Menu.select_root_folder(folders)
 
     # --------------------------------------------------
     # Browse ALL Root Folders
     # --------------------------------------------------
 
-    if selection == "ALL":
+    if selected_folder == "ALL":
+
+        print("\nBrowsing ALL Root Folders")
+        print("-" * 60)
+
+        all_objects = []
 
         for folder in folders:
-            display_folder_contents(client, folder)
+
+            print(f"\n{folder['name']}")
+
+            contents = browse_folder(client, folder["id"])
+
+            for obj in contents:
+                print(f"  {obj['name']}")
+
+                all_objects.append(obj)
 
     # --------------------------------------------------
-    # Browse Selected Folder
+    # Browse Single Folder
     # --------------------------------------------------
 
     else:
 
-        display_folder_contents(client, selection)
+        print("\nBrowsing Folder")
+        print("-" * 60)
+
+        print(selected_folder["name"])
+
+        contents = browse_folder(client, selected_folder["id"])
+
+        print("\nContents")
+        print("-" * 60)
+
+        if not contents:
+
+            print("Folder is empty.")
+
+        else:
+
+            for index, obj in enumerate(contents, start=1):
+                print(f"{index}. {obj['name']} ({obj['id']})")
 
     # --------------------------------------------------
-    # Object Search
+    # Search
     # --------------------------------------------------
+
+    print("\nSearch Objects")
+    print("-" * 60)
 
     object_type = Menu.select_object_type()
 
@@ -86,30 +104,45 @@ def main():
     results = search_objects(
         client,
         search_text,
-        object_type
+        object_type.value
     )
 
     print("\nSearch Results")
-    print("-" * 80)
+    print("-" * 60)
 
-    print(f"Total Results : {results['totalItems']}\n")
+    search_results = results.get("result", [])
 
-    if results["totalItems"] == 0:
+    if not search_results:
 
-        print("Nothing found.")
+        print("No objects found.")
+        return
 
-    else:
+    for index, obj in enumerate(search_results, start=1):
 
-        for index, obj in enumerate(results["result"], start=1):
+        print(f"{index}. {obj['name']} ({obj['id']})")
 
-            print(f"{index}. {obj['name']}")
-            print(f"   ID          : {obj['id']}")
-            print(f"   Type        : {obj['type']}")
+    # --------------------------------------------------
+    # NEW CODE - Select Object
+    # --------------------------------------------------
 
-            if obj.get("description"):
-                print(f"   Description : {obj['description']}")
+    object_choice = int(input("\nSelect Object : "))
 
-            print()
+    selected_object = search_results[object_choice - 1]
+
+    # --------------------------------------------------
+    # NEW CODE - Object Details
+    # --------------------------------------------------
+
+    details = get_object_details(
+        client,
+        selected_object["id"],
+        selected_object["type"]
+    )
+
+    print("\nObject Details")
+    print("-" * 60)
+
+    print(json.dumps(details, indent=4))
 
 
 if __name__ == "__main__":

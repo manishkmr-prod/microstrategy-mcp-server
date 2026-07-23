@@ -7,32 +7,35 @@ Provides functions for retrieving metadata about a MicroStrategy object.
 import json
 
 
-def get_object_details(client, object_id):
+def get_object_details(client, object_id, object_type):
     """
     Retrieves metadata for a MicroStrategy object.
 
     Parameters
     ----------
     client : MSTRClient
-        Authenticated client.
 
     object_id : str
-        MicroStrategy object ID.
 
-    Returns
-    -------
-    dict
-        JSON response from the REST API.
+    object_type : int
+        MicroStrategy object type
+        (Report=3, Metric=4, Attribute=12, Folder=8, etc.)
     """
 
     endpoint = f"/objects/{object_id}"
 
+    params = {
+        "type": object_type
+    }
+
     print("\nCalling REST API")
     print("-" * 60)
     print(f"Endpoint : {endpoint}")
+    print(f"Type     : {object_type}")
 
     response = client.get(
         endpoint,
+        params=params,
         headers={
             "Accept": "application/json"
         }
@@ -41,6 +44,7 @@ def get_object_details(client, object_id):
     print("\nHTTP Status :", response.status_code)
 
     if response.status_code != 200:
+
         print("\nResponse")
         print(response.text)
 

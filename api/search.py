@@ -13,7 +13,7 @@ def search_objects(
 
     search_text : str
 
-    object_type : ObjectType (optional)
+    object_type : int (optional)
 
     limit : int
     """
@@ -25,9 +25,14 @@ def search_objects(
         "getAncestors": True
     }
 
+    # --------------------------------------------------
+    # CHANGED
+    # object_type is now an integer
+    # --------------------------------------------------
+
     if object_type is not None:
 
-        params["type"] = object_type.value
+        params["type"] = object_type
 
     response = client.get(
         "/searches/results",
