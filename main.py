@@ -1,9 +1,10 @@
 from mstr_client import MSTRClient
-
 from api.authentication import login
 from api.projects import list_projects
 from api.folders import list_root_folders, browse_folder
-from api.search import search_reports
+from api.search import search_objects
+
+from utils.menu import Menu
 
 
 def main():
@@ -17,20 +18,12 @@ def main():
     print("Login Successful\n")
 
     # --------------------------------------------------
-    # List Projects
+    # Project Selection
     # --------------------------------------------------
 
     projects = list_projects(client)
 
-    print("Available Projects")
-    print("-" * 60)
-
-    for index, project in enumerate(projects, start=1):
-        print(f"{index}. {project['name']}")
-
-    choice = int(input("\nSelect Project Number : "))
-
-    selected_project = projects[choice - 1]
+    selected_project = Menu.select_project(projects)
 
     client.set_project(selected_project["id"])
 
@@ -38,36 +31,26 @@ def main():
     print("-" * 60)
     print(selected_project["name"])
 
-    # Verify session headers (optional)
-    print("\nSession Headers")
-    print("-" * 60)
-    print(client.session.headers)
-
     # --------------------------------------------------
-    # Root Folders
+    # Root Folder Selection
     # --------------------------------------------------
 
     folders = list_root_folders(client)
 
-    print("\nRoot Folders")
-    print("-" * 60)
-
-    for index, folder in enumerate(folders, start=1):
-        print(f"{index}. {folder['name']}")
-
-    folder_choice = int(input("\nSelect Folder : "))
-
-    selected_folder = folders[folder_choice - 1]
+    selected_folder = Menu.select_root_folder(folders)
 
     print("\nBrowsing Folder")
     print("-" * 60)
     print(selected_folder["name"])
 
     # --------------------------------------------------
-    # Browse Selected Folder
+    # Browse Folder
     # --------------------------------------------------
 
-    contents = browse_folder(client, selected_folder["id"])
+    contents = browse_folder(
+        client,
+        selected_folder["id"]
+    )
 
     print("\nContents")
     print("-" * 60)
@@ -79,23 +62,45 @@ def main():
             print(f"{index}. {obj['name']} ({obj['id']})")
 
     # --------------------------------------------------
-    # Search Objects
+    # Object Type Selection
     # --------------------------------------------------
+
+    object_type = Menu.select_object_type()
 
     search_text = input("\nSearch Text : ")
 
-    results = search_reports(client, search_text)
+    results = search_objects(
+        client,
+        search_text,
+        object_type
+    )
+
+    # --------------------------------------------------
+    # Display Search Results
+    # --------------------------------------------------
 
     print("\nSearch Results")
     print("-" * 80)
 
-    print(f"Total Results Found: {results['totalItems']}\n")
+    print(f"Total Results : {results['totalItems']}")
+    print()
 
-    for index, obj in enumerate(results["result"], start=1):
-        print(f"{index}. {obj['name']}")
-        print(f"   ID   : {obj['id']}")
-        print(f"   Type : {obj['type']}")
-        print()
+    if results["totalItems"] == 0:
+
+        print("Nothing found.")
+
+    else:
+
+        for index, obj in enumerate(results["result"], start=1):
+
+            print(f"{index}. {obj['name']}")
+            print(f"   ID          : {obj['id']}")
+            print(f"   Type        : {obj['type']}")
+
+            if obj.get("description"):
+                print(f"   Description : {obj['description']}")
+
+            print()
 
 
 if __name__ == "__main__":
