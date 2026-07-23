@@ -1,16 +1,39 @@
-# This is a sample Python script.
+from mstr_client import MSTRClient
+from api.authentication import login
+from api.projects import list_projects
+from api.folders import list_folders
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Replace this with the Project ID you want to browse
+PROJECT_ID = "205BABE083484404399FBBA37BAA874A"
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def main():
+    client = MSTRClient()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print("Connecting to MicroStrategy...")
+
+    login(client)
+
+    print("Login Successful\n")
+
+    # List all available projects
+    projects = list_projects(client)
+
+    print("Available Projects")
+    print("-" * 50)
+
+    for project in projects:
+        print(f"{project['name']} ({project['id']})")
+
+    # List folders for the selected project
+    print("\nFolders")
+    print("-" * 50)
+
+    folders = list_folders(client, PROJECT_ID)
+
+    for folder in folders:
+        print(f"{folder['name']} ({folder['id']})")
+
+
+if __name__ == "__main__":
+    main()
