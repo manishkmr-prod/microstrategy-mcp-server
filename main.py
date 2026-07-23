@@ -1,7 +1,9 @@
 from mstr_client import MSTRClient
+
 from api.authentication import login
 from api.projects import list_projects
 from api.folders import list_root_folders, browse_folder
+from api.search import search_reports
 
 
 def main():
@@ -36,8 +38,13 @@ def main():
     print("-" * 60)
     print(selected_project["name"])
 
+    # Verify session headers (optional)
+    print("\nSession Headers")
+    print("-" * 60)
+    print(client.session.headers)
+
     # --------------------------------------------------
-    # Root folders
+    # Root Folders
     # --------------------------------------------------
 
     folders = list_root_folders(client)
@@ -70,6 +77,25 @@ def main():
     else:
         for index, obj in enumerate(contents, start=1):
             print(f"{index}. {obj['name']} ({obj['id']})")
+
+    # --------------------------------------------------
+    # Search Objects
+    # --------------------------------------------------
+
+    search_text = input("\nSearch Text : ")
+
+    results = search_reports(client, search_text)
+
+    print("\nSearch Results")
+    print("-" * 80)
+
+    print(f"Total Results Found: {results['totalItems']}\n")
+
+    for index, obj in enumerate(results["result"], start=1):
+        print(f"{index}. {obj['name']}")
+        print(f"   ID   : {obj['id']}")
+        print(f"   Type : {obj['type']}")
+        print()
 
 
 if __name__ == "__main__":
