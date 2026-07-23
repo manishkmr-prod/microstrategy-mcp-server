@@ -8,7 +8,33 @@ from api.object_details import get_object_details
 from utils.menu import Menu
 from utils.object_types import ObjectType
 
-import json
+
+# --------------------------------------------------
+# NEW FUNCTION
+# Pretty-print object details
+# --------------------------------------------------
+
+def print_object_details(details):
+
+    print("\n")
+    print("=" * 60)
+    print("Object Details")
+    print("=" * 60)
+
+    print(f"Name         : {details.get('name', '-')}")
+    print(f"ID           : {details.get('id', '-')}")
+    print(f"Type         : {ObjectType(details.get('type')).name.title() if details.get('type') in [item.value for item in ObjectType] else details.get('type', '-')}")
+
+    print(f"Description  : {details.get('description', '-')}")
+
+    owner = details.get("owner", {})
+
+    print(f"Owner        : {owner.get('name', '-')}")
+    print(f"Created      : {details.get('dateCreated', '-')}")
+    print(f"Modified     : {details.get('dateModified', '-')}")
+    print(f"Version      : {details.get('version', '-')}")
+
+    print("=" * 60)
 
 
 def main():
@@ -22,7 +48,7 @@ def main():
     print("Login Successful\n")
 
     # --------------------------------------------------
-    # Select Project
+    # Project Selection
     # --------------------------------------------------
 
     projects = list_projects(client)
@@ -36,23 +62,17 @@ def main():
     print(selected_project["name"])
 
     # --------------------------------------------------
-    # Browse Root Folder
+    # Root Folder Selection
     # --------------------------------------------------
 
     folders = list_root_folders(client)
 
     selected_folder = Menu.select_root_folder(folders)
 
-    # --------------------------------------------------
-    # Browse ALL Root Folders
-    # --------------------------------------------------
-
     if selected_folder == "ALL":
 
         print("\nBrowsing ALL Root Folders")
         print("-" * 60)
-
-        all_objects = []
 
         for folder in folders:
 
@@ -62,12 +82,6 @@ def main():
 
             for obj in contents:
                 print(f"  {obj['name']}")
-
-                all_objects.append(obj)
-
-    # --------------------------------------------------
-    # Browse Single Folder
-    # --------------------------------------------------
 
     else:
 
@@ -121,17 +135,9 @@ def main():
 
         print(f"{index}. {obj['name']} ({obj['id']})")
 
-    # --------------------------------------------------
-    # NEW CODE - Select Object
-    # --------------------------------------------------
-
-    object_choice = int(input("\nSelect Object : "))
+    object_choice = int(input("\nSelect Object Number : "))
 
     selected_object = search_results[object_choice - 1]
-
-    # --------------------------------------------------
-    # NEW CODE - Object Details
-    # --------------------------------------------------
 
     details = get_object_details(
         client,
@@ -139,10 +145,12 @@ def main():
         selected_object["type"]
     )
 
-    print("\nObject Details")
-    print("-" * 60)
+    # --------------------------------------------------
+    # NEW CODE
+    # Pretty-print object details
+    # --------------------------------------------------
 
-    print(json.dumps(details, indent=4))
+    print_object_details(details)
 
 
 if __name__ == "__main__":
