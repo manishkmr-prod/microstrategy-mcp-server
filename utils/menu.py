@@ -19,9 +19,6 @@ class Menu:
 
     @staticmethod
     def select_project(projects):
-        """
-        Display project list and return selected project.
-        """
 
         print("\nAvailable Projects")
         print("-" * 60)
@@ -45,21 +42,27 @@ class Menu:
 
     @staticmethod
     def select_root_folder(folders):
-        """
-        Display root folders and return selected folder.
-        """
 
         print("\nAvailable Root Folders")
         print("-" * 60)
+
+        print("\nA. Browse ALL Root Folders\n")
+
+        print("-------------------- OR --------------------\n")
 
         for index, folder in enumerate(folders, start=1):
             print(f"{index}. {folder['name']}")
 
         while True:
 
+            choice = input("\nSelect Folder : ").strip().upper()
+
+            if choice == "A":
+                return "ALL"
+
             try:
 
-                choice = int(input("\nSelect Folder : "))
+                choice = int(choice)
 
                 if 1 <= choice <= len(folders):
                     return folders[choice - 1]
@@ -67,13 +70,10 @@ class Menu:
                 print("Invalid selection.")
 
             except ValueError:
-                print("Please enter a valid number.")
+                print("Please enter A or a valid number.")
 
     @classmethod
     def select_object_type(cls):
-        """
-        Display object type menu.
-        """
 
         print("\nObject Types")
         print("-" * 60)

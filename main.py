@@ -7,6 +7,25 @@ from api.search import search_objects
 from utils.menu import Menu
 
 
+def display_folder_contents(client, folder):
+    """
+    Browse and display a folder.
+    """
+
+    print("\n" + "=" * 80)
+    print(folder["name"])
+    print("=" * 80)
+
+    contents = browse_folder(client, folder["id"])
+
+    if not contents:
+        print("Folder is empty.")
+        return
+
+    for index, obj in enumerate(contents, start=1):
+        print(f"{index}. {obj['name']} ({obj['id']})")
+
+
 def main():
 
     client = MSTRClient()
@@ -37,32 +56,27 @@ def main():
 
     folders = list_root_folders(client)
 
-    selected_folder = Menu.select_root_folder(folders)
-
-    print("\nBrowsing Folder")
-    print("-" * 60)
-    print(selected_folder["name"])
+    selection = Menu.select_root_folder(folders)
 
     # --------------------------------------------------
-    # Browse Folder
+    # Browse ALL Root Folders
     # --------------------------------------------------
 
-    contents = browse_folder(
-        client,
-        selected_folder["id"]
-    )
+    if selection == "ALL":
 
-    print("\nContents")
-    print("-" * 60)
+        for folder in folders:
+            display_folder_contents(client, folder)
 
-    if not contents:
-        print("Folder is empty.")
+    # --------------------------------------------------
+    # Browse Selected Folder
+    # --------------------------------------------------
+
     else:
-        for index, obj in enumerate(contents, start=1):
-            print(f"{index}. {obj['name']} ({obj['id']})")
+
+        display_folder_contents(client, selection)
 
     # --------------------------------------------------
-    # Object Type Selection
+    # Object Search
     # --------------------------------------------------
 
     object_type = Menu.select_object_type()
@@ -75,15 +89,10 @@ def main():
         object_type
     )
 
-    # --------------------------------------------------
-    # Display Search Results
-    # --------------------------------------------------
-
     print("\nSearch Results")
     print("-" * 80)
 
-    print(f"Total Results : {results['totalItems']}")
-    print()
+    print(f"Total Results : {results['totalItems']}\n")
 
     if results["totalItems"] == 0:
 
