@@ -167,16 +167,14 @@ Completed:
 
 #### Generic Object Details
 
--   Name
--   ID
--   Type
--   Description
--   Owner
--   Dates
--   Version
--   Path
-
-Likelihood: **95--100%**
+-   ✅ Name
+-   ✅ ID
+-   ✅ Type
+-   ✅ Description
+-   ✅ Owner
+-   ✅ Dates
+-   ✅ Version
+-   ✅ Path
 
 #### Report Details
 
