@@ -1,5 +1,3 @@
-import json
-
 from mstr_client import MSTRClient
 
 from api.authentication import login
@@ -12,10 +10,7 @@ from api.search import search_objects
 from api.object_details import get_object_details
 from api.reports import get_report_definition
 from api.changesets import create_changeset
-from api.report_instances import (
-    create_report_instance,
-    delete_report_instance
-)
+from api.report_executor import execute_report
 
 from utils.menu import Menu
 from utils.object_types import ObjectType
@@ -44,9 +39,13 @@ def run():
 
     selected_project = Menu.select_project(projects)
 
-    client.set_project(selected_project["id"])
+    client.set_project(
+        selected_project["id"]
+    )
 
-    Printer.selected_project(selected_project)
+    Printer.selected_project(
+        selected_project
+    )
 
     # --------------------------------------------------
     # Create Modeling Changeset
@@ -63,7 +62,9 @@ def run():
         changeset["id"]
     )
 
-    Printer.changeset(changeset)
+    Printer.changeset(
+        changeset
+    )
 
     # --------------------------------------------------
     # Root Folder Selection
@@ -71,7 +72,9 @@ def run():
 
     folders = list_root_folders(client)
 
-    selected_folder = Menu.select_root_folder(folders)
+    selected_folder = Menu.select_root_folder(
+        folders
+    )
 
     if selected_folder == "ALL":
 
@@ -87,6 +90,7 @@ def run():
             )
 
             for obj in contents:
+
                 print(f"  {obj['name']}")
 
     else:
@@ -100,7 +104,9 @@ def run():
             selected_folder["id"]
         )
 
-        Printer.folder_contents(contents)
+        Printer.folder_contents(
+            contents
+        )
 
     # --------------------------------------------------
     # Search
@@ -110,7 +116,9 @@ def run():
 
     object_type = Menu.select_object_type()
 
-    search_text = input("\nSearch Text : ")
+    search_text = input(
+        "\nSearch Text : "
+    )
 
     results = search_objects(
         client,
@@ -118,25 +126,34 @@ def run():
         object_type.value
     )
 
-    search_results = results.get("result", [])
+    search_results = results.get(
+        "result",
+        []
+    )
 
-    Printer.search_results(search_results)
+    Printer.search_results(
+        search_results
+    )
 
     if not search_results:
         return
 
     object_choice = int(
-        input("\nSelect Object Number : ")
+        input(
+            "\nSelect Object Number : "
+        )
     )
 
     selected_object = search_results[
         object_choice - 1
     ]
 
-    Printer.selected_object(selected_object)
+    Printer.selected_object(
+        selected_object
+    )
 
     # --------------------------------------------------
-    # Report Definition or Object Details
+    # Report
     # --------------------------------------------------
 
     if selected_object["type"] == ObjectType.REPORT.value:
@@ -146,37 +163,22 @@ def run():
             selected_object["id"]
         )
 
-        Printer.report_definition(report)
+        Printer.report_definition(
+            report
+        )
 
-        # --------------------------------------------------
-        # Create Report Instance
-        # --------------------------------------------------
+        # ----------------------------------------------
+        # Execute Report
+        # ----------------------------------------------
 
-        print("\nCreating Report Instance...")
-        Printer.separator()
-
-        instance = create_report_instance(
+        execute_report(
             client,
             selected_object["id"]
         )
 
-        Printer.report_instance(instance)
-        
-
-        # --------------------------------------------------
-        # Delete Report Instance (temporary test)
-        # --------------------------------------------------
-
-        print("\nDeleting Report Instance...")
-        Printer.separator()
-
-        delete_report_instance(
-            client,
-            selected_object["id"],
-            instance["id"]
-        )
-
-        print("\nReport Instance Deleted Successfully.")
+    # --------------------------------------------------
+    # Other Objects
+    # --------------------------------------------------
 
     else:
 
@@ -186,4 +188,6 @@ def run():
             selected_object["type"]
         )
 
-        Printer.object_details(details)
+        Printer.object_details(
+            details
+        )
