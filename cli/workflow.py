@@ -12,6 +12,10 @@ from api.search import search_objects
 from api.object_details import get_object_details
 from api.reports import get_report_definition
 from api.changesets import create_changeset
+from api.report_instances import (
+    create_report_instance,
+    delete_report_instance
+)
 
 from utils.menu import Menu
 from utils.object_types import ObjectType
@@ -143,6 +147,36 @@ def run():
         )
 
         Printer.report_definition(report)
+
+        # --------------------------------------------------
+        # Create Report Instance
+        # --------------------------------------------------
+
+        print("\nCreating Report Instance...")
+        Printer.separator()
+
+        instance = create_report_instance(
+            client,
+            selected_object["id"]
+        )
+
+        Printer.report_instance(instance)
+        
+
+        # --------------------------------------------------
+        # Delete Report Instance (temporary test)
+        # --------------------------------------------------
+
+        print("\nDeleting Report Instance...")
+        Printer.separator()
+
+        delete_report_instance(
+            client,
+            selected_object["id"],
+            instance["id"]
+        )
+
+        print("\nReport Instance Deleted Successfully.")
 
     else:
 

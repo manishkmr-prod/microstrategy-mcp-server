@@ -332,3 +332,27 @@ class Printer:
 
         print()
         print("=" * 60)
+
+    # --------------------------------------------------
+    # Report Instance
+    # --------------------------------------------------
+
+    @staticmethod
+    def report_instance(instance):
+
+        print()
+        print("=" * 60)
+        print("Report Instance")
+        print("=" * 60)
+
+        print("Instance ID")
+        print("-" * 20)
+        print(instance.get("id", "-"))
+
+        print()
+        print("Status")
+        print("-" * 20)
+        print("Created Successfully")
+
+        print()
+        print("=" * 60)
