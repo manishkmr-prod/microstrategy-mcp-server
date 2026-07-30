@@ -1,13 +1,23 @@
 """
 Data Parser
 
-Extracts report data rows from a MicroStrategy report response.
+Extracts the data section returned from a MicroStrategy
+Report Instance REST API response.
 
-This parser is responsible only for locating and returning
-the raw report data.
+Current Scope
+-------------
+- Row header indexes
+- Column header indexes
+- Raw metric values
+- Formatted metric values
 
-Future commits will convert the raw data into fully formatted
-records using report headers and metric metadata.
+Future Scope
+------------
+- Build logical rows
+- Handle totals
+- Handle subtotals
+- Handle page-by
+- Produce report-ready records
 """
 
 
@@ -19,19 +29,52 @@ class DataParser:
     @staticmethod
     def parse(report_json):
         """
-        Parse report data.
+        Parse the report data section.
 
         Parameters
         ----------
         report_json : dict
-            Complete report response.
 
         Returns
         -------
-        list
-            Raw report rows.
+        dict
         """
 
-        data = report_json.get("data", {})
+        data = report_json.get(
+            "data",
+            {}
+        )
 
-        return data.get("root", {}).get("children", [])
+        headers = data.get(
+            "headers",
+            {}
+        )
+
+        metric_values = data.get(
+            "metricValues",
+            {}
+        )
+
+        return {
+
+            "row_headers": headers.get(
+                "rows",
+                []
+            ),
+
+            "column_headers": headers.get(
+                "columns",
+                []
+            ),
+
+            "raw_values": metric_values.get(
+                "raw",
+                []
+            ),
+
+            "formatted_values": metric_values.get(
+                "formatted",
+                []
+            )
+
+        }

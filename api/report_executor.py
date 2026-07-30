@@ -42,6 +42,7 @@ from utils.grid_parser import GridParser
 from utils.header_parser import HeaderParser
 from utils.metric_parser import MetricParser
 from utils.data_parser import DataParser
+from utils.data_parser import DataParser
 
 
 def execute_report(client, report_id):
@@ -174,6 +175,14 @@ def execute_report(client, report_id):
         )
 
         # --------------------------------------------------
+        # Parse Report Data
+        # --------------------------------------------------
+
+        rows = DataParser.parse(
+            data
+        )
+
+        # --------------------------------------------------
         # Temporary Verification
         # --------------------------------------------------
         #
@@ -187,6 +196,14 @@ def execute_report(client, report_id):
         # print(headers)
         # print(metrics)
         # print(rows)
+
+        print("\n===== DATA SECTION =====")
+        print(
+            json.dumps(
+                data.get("data", {}),
+                indent=4
+            )
+        )
 
         return data
 
