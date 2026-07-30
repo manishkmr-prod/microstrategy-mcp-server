@@ -41,6 +41,7 @@ from utils.printer import Printer
 from utils.grid_parser import GridParser
 from utils.header_parser import HeaderParser
 from utils.metric_parser import MetricParser
+from utils.data_parser import DataParser
 
 
 def execute_report(client, report_id):
@@ -165,19 +166,27 @@ def execute_report(client, report_id):
         )
 
         # --------------------------------------------------
+        # Parse Report Data
+        # --------------------------------------------------
+
+        rows = DataParser.parse(
+            data
+        )
+
+        # --------------------------------------------------
         # Temporary Verification
         # --------------------------------------------------
         #
-        # GridParser, HeaderParser and MetricParser are
-        # intentionally executed but not displayed.
-        # Future commits will use these parsed objects
-        # to build a production-quality report output.
-        #
-        # Uncomment during development if needed.
+        # GridParser, HeaderParser, MetricParser and
+        # DataParser are intentionally executed but not
+        # displayed. Future commits will use these parsed
+        # objects to build a production-quality report
+        # output.
         #
         # print(grid)
         # print(headers)
         # print(metrics)
+        # print(rows)
 
         return data
 
