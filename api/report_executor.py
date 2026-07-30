@@ -40,6 +40,7 @@ from utils.prompt_engine import (
 from utils.printer import Printer
 from utils.grid_parser import GridParser
 from utils.header_parser import HeaderParser
+from utils.metric_parser import MetricParser
 
 
 def execute_report(client, report_id):
@@ -155,15 +156,28 @@ def execute_report(client, report_id):
             data["definition"]["grid"]
         )
 
-        # Temporary verification.
-        #
-        # GridParser and HeaderParser are intentionally
-        # executed but not displayed. Future commits will
-        # use these parsed objects to build a production-
-        # quality report output.
+        # --------------------------------------------------
+        # Parse Report Metrics
+        # --------------------------------------------------
 
+        metrics = MetricParser.parse(
+            data["definition"]["grid"]
+        )
+
+        # --------------------------------------------------
+        # Temporary Verification
+        # --------------------------------------------------
+        #
+        # GridParser, HeaderParser and MetricParser are
+        # intentionally executed but not displayed.
+        # Future commits will use these parsed objects
+        # to build a production-quality report output.
+        #
+        # Uncomment during development if needed.
+        #
         # print(grid)
         # print(headers)
+        # print(metrics)
 
         return data
 
