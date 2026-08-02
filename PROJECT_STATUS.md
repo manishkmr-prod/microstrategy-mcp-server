@@ -2,67 +2,100 @@
 
 **Project Status:** Active Development
 
-*Last Updated: 2026-07-23*
+**Last Updated:** 2026-07-30
 
-------------------------------------------------------------------------
+---
 
 # 1. Vision
 
-Build a production-quality **Python SDK** and **Model Context Protocol
-(MCP) Server** for MicroStrategy that enables AI assistants (ChatGPT,
-GitHub Copilot, Claude Desktop, VS Code, etc.) to securely interact with
-the MicroStrategy REST API.
+Build a production-quality **Python SDK** and **Model Context Protocol (MCP) Server** for MicroStrategy that enables AI assistants (ChatGPT, GitHub Copilot, Claude Desktop, VS Code, and other MCP-compatible clients) to securely interact with the MicroStrategy REST API.
 
-The project follows an **SDK-first** approach:
+The project follows a strict **SDK-first architecture**, where every capability is implemented and tested in the Python SDK before being exposed through the CLI or MCP Server.
 
-    AI Assistant
-          │
-          ▼
-    MCP Server
-          │
-          ▼
-    Python SDK
-          │
-          ▼
-    MicroStrategy REST API
-          │
-          ▼
-    MicroStrategy Platform
+```
+               AI Assistant
+(ChatGPT / Copilot / Claude / VS Code)
 
-------------------------------------------------------------------------
+                    │
+                    ▼
+
+           Model Context Protocol
+                (MCP Server)
+
+                    │
+                    ▼
+
+              Python SDK Layer
+
+                    │
+                    ▼
+
+         MicroStrategy REST API
+
+                    │
+                    ▼
+
+          MicroStrategy Platform
+```
+
+---
 
 # 2. Development Principles
 
--   SDK-first architecture
--   One REST endpoint per module
--   Business logic separated from REST calls
--   CLI separated from SDK
--   MCP layer only exposes SDK functions
--   Small, testable commits
--   Incremental development
+The project follows several architectural principles.
 
-------------------------------------------------------------------------
+- SDK-first development
+- One REST endpoint per module
+- Business logic separated from REST calls
+- CLI separated from SDK
+- MCP layer only exposes SDK functions
+- Small, independently testable commits
+- Production-quality code over quick prototypes
+- Modular parser architecture
+- Clean console output suitable for production
+
+---
 
 # 3. Current Architecture
 
-``` text
+```
 Strategy MCP/
 
 api/
-    authentication.py
-    folders.py
-    projects.py
-    search.py
+│
+├── authentication.py
+├── changesets.py
+├── folders.py
+├── object_details.py
+├── projects.py
+├── prompt_answers.py
+├── report_data.py
+├── report_executor.py
+├── report_instances.py
+├── report_prompts.py
+├── reports.py
+├── search.py
+
+cli/
+│
+└── workflow.py
 
 utils/
-    menu.py
-    object_types.py
+│
+├── grid_parser.py
+├── header_parser.py
+├── menu.py
+├── metric_parser.py
+├── object_types.py
+├── printer.py
+├── prompt_engine.py
+└── report_parser.py
 
 tests/
 
 config.py
-mstr_client.py
 main.py
+mstr_client.py
 server.py
 
 README.md
@@ -70,320 +103,421 @@ CHANGELOG.md
 PROJECT_STATUS.md
 ```
 
-------------------------------------------------------------------------
+---
 
 # 4. Coding Standards
 
--   No REST calls inside `main.py`
--   One REST endpoint per API module
--   `main.py` only orchestrates
--   Menu logic belongs in `utils/menu.py`
--   Reusable SDK functions before MCP tools
--   Every new feature should be independently testable
+Current project standards include:
 
-------------------------------------------------------------------------
+- No REST calls inside CLI workflow
+- One REST endpoint per API module
+- CLI only orchestrates SDK calls
+- Business logic belongs in SDK
+- Parsing separated from REST communication
+- Printer handles all console formatting
+- SDK functions return Python objects
+- Every feature must be independently testable
+- Remove debugging code before committing
+- Keep commits small and logically grouped
+
+---
 
 # 5. Current Features
 
-Completed:
+## Authentication
 
--   Login
--   Session handling
--   Environment configuration
--   Project selection
--   Root folder browsing
--   Folder browsing
--   Browse ALL root folders
--   Generic object search
--   ObjectType enumeration
--   Menu abstraction
+- ✅ Login
+- ⬜ Logout
+- ⬜ Session Validation
 
-------------------------------------------------------------------------
+---
+
+## Session Management
+
+- ✅ Authentication Token
+- ✅ Project Context
+- ✅ Changeset Context
+
+---
+
+## Project APIs
+
+- ✅ List Projects
+- ✅ Select Active Project
+
+---
+
+## Changesets
+
+- ✅ Create Modeling Changeset
+- ⬜ Close Changeset
+- ⬜ Delete Changeset
+
+---
+
+## Folder APIs
+
+- ✅ Browse Root Folders
+- ✅ Browse Folder
+- ✅ Browse ALL Root Folders
+- ⬜ Folder Details
+
+---
+
+## Generic Search
+
+Supported object types:
+
+- ✅ Reports
+- ✅ Metrics
+- ✅ Attributes
+- ✅ Facts
+- ✅ Filters
+- ✅ Documents
+- ✅ Folders
+
+---
+
+## Object Details
+
+Generic metadata extraction:
+
+- ✅ Name
+- ✅ Description
+- ✅ Owner
+- ✅ Object ID
+- ✅ Creation Date
+- ✅ Modification Date
+- ✅ Version
+- ✅ Folder Path
+
+---
+
+## Report Definition
+
+Extract report metadata including:
+
+- ✅ Rows
+- ✅ Columns
+- ✅ Metrics
+- ✅ Filters
+- ✅ Prompt Count
+- ⬜ Page By
+- ⬜ Thresholds
+- ⬜ View Filters
+
+---
+
+## Report Execution
+
+Current execution workflow:
+
+- ✅ Create Report Instance
+- ✅ Retrieve Prompt Definitions
+- ✅ Prompt Detection
+- ✅ Generate Prompt Payload
+- ✅ Submit Prompt Answers
+- ✅ Retrieve Report Data
+- ✅ Delete Report Instance
+
+---
+
+## Grid Parsing
+
+Current parser capabilities:
+
+- ✅ Row Attributes
+- ✅ Column Attributes
+- ✅ Metrics
+- ✅ Grid Metadata
+
+Future:
+
+- ⬜ Headers
+- ⬜ Data Matrix
+- ⬜ Totals
+- ⬜ Subtotals
+- ⬜ Cell Formatting
+
+---
 
 # 6. Implemented REST APIs
 
-  API                   Status
-  --------------------- --------
-  Login                 ✅
-  List Projects         ✅
-  Browse Root Folders   ✅
-  Browse Folder         ✅
-  Search Objects        ✅
-  Object Details        ⬜
+| REST API | Status |
+|----------|--------|
+| Login | ✅ |
+| List Projects | ✅ |
+| Create Changeset | ✅ |
+| Browse Root Folders | ✅ |
+| Browse Folder | ✅ |
+| Search Objects | ✅ |
+| Object Details | ✅ |
+| Report Definition | ✅ |
+| Create Report Instance | ✅ |
+| Retrieve Report Prompts | ✅ |
+| Submit Prompt Answers | ✅ |
+| Retrieve Report Data | ✅ |
+| Delete Report Instance | ✅ |
 
-------------------------------------------------------------------------
+---
 
 # 7. Development Roadmap
 
-## Phase 1 -- Foundation & Metadata SDK
+## Phase 1 — Foundation & Metadata SDK
 
-### Milestone 1 -- Project Foundation
+### Completed
 
--   ✅ Project structure
--   ✅ Git
--   ✅ Virtual environment
--   ✅ Configuration
--   ✅ .env Likelihood: **100%**
+- ✅ Project Structure
+- ✅ Configuration
+- ✅ REST Client
+- ✅ Authentication
+- ✅ Project APIs
+- ✅ Folder APIs
+- ✅ Generic Search
+- ✅ Object Details
+- ✅ Report Definition
+- ✅ Report Execution
+- ✅ Prompt Handling
+- ✅ Grid Metadata Parsing
 
-### Milestone 2 -- REST Client
+Remaining:
 
--   ✅ GET
--   ✅ POST
--   ⬜ PUT
--   ⬜ PATCH
--   ⬜ DELETE
--   Error handling Likelihood: **100%**
+- Session Validation
+- Logout
+- Better Error Handling
+- Retry Logic
 
-### Milestone 3 -- Authentication
+---
 
--   ✅ Login
--   ⬜ Logout
--   ⬜ Session validation Likelihood: **100%**
+## Phase 2 — Report SDK
 
-### Milestone 4 -- Project APIs
+Upcoming work:
 
--   ✅ List Projects
--   ⬜ Project Details Likelihood: **100%**
+### Grid Parser
 
-### Milestone 5 -- Folder APIs
+- Header Parser
+- Metric Parser
+- Attribute Parser
+- Data Matrix Parser
 
--   ✅ Root folders
--   ✅ Browse folder
--   ✅ Browse ALL root folders
--   ⬜ Folder details Likelihood: **100%**
+### Result Export
 
-### Milestone 6 -- Generic Search
+- JSON
+- CSV
+- Excel
+- PDF (where supported)
 
--   ✅ Reports
--   ✅ Metrics
--   ✅ Attributes
--   ✅ Facts
--   ✅ Filters
--   ✅ Documents
--   ✅ Folders
--   ✅ Generic search Likelihood: **100%**
+### Advanced Reports
 
-### Milestone 7 -- Object Details
+- Prompted Reports
+- View Filters
+- Report Caching
+- Pagination
 
-#### Generic Object Details
+---
 
--   ✅ Name
--   ✅ ID
--   ✅ Type
--   ✅ Description
--   ✅ Owner
--   ✅ Dates
--   ✅ Version
--   ✅ Path
+## Phase 3 — Modeling SDK
 
-#### Report Details
+- Create Attributes
+- Create Facts
+- Create Metrics
+- Create Hierarchies
+- Create Transformations
+- Create Relationships
+- Validate Schema
+- Trigger Schema Update
 
--   Template
--   Metrics
--   Attributes
--   Filters
--   Prompts Likelihood: **95%**
+---
 
-#### Metric Details
+## Phase 4 — Content Development SDK
 
--   Formula
--   Dimensionality Likelihood: **85--95%**
+- Reports
+- Dossiers
+- Cubes
+- Filters
+- Prompts
+- Documents
+- Users
+- Security
 
-#### Attribute Details
+---
 
--   Forms
--   Lookup
--   Relationships Likelihood: **85--95%**
+## Phase 5 — MCP Server
 
-#### Filter Details
+Expose SDK functions as MCP tools.
 
--   Qualification
--   Expression Likelihood: **85--95%**
+Examples:
 
-#### Cube Details
+- login
+- list_projects
+- search_objects
+- browse_folder
+- execute_report
+- create_metric
+- create_attribute
 
-Likelihood: **85--90%**
+---
 
-#### Dossier Details
+## Phase 6 — AI Assistant
 
-Likelihood: **75--85%**
+Natural language requests:
 
-------------------------------------------------------------------------
+> Create a Revenue metric.
 
-## Phase 2 -- Report SDK
+> Execute Regional Sales Report.
 
-### Milestone 8 -- Report Metadata
+> Export the report to Excel.
 
--   Report definition
--   Template
--   Metrics
--   Attributes
--   Filters
--   Prompts
+> Create Customer Attribute.
 
-### Milestone 9 -- Report Execution
+> Build a report showing Revenue by Region.
 
--   Execute report
--   Handle prompts
--   Retrieve results
-
-### Milestone 10 -- Export
-
--   JSON
--   CSV
--   Excel
--   PDF (where supported)
-
-Likelihood: **95--100%**
-
-------------------------------------------------------------------------
-
-## Phase 3 -- Modeling SDK
-
-### Milestone 11
-
--   Create Attributes
--   Create Facts
--   Create Metrics
--   Create Hierarchies
-
-### Milestone 12
-
--   Relationships
--   Logical tables
-
-### Milestone 13
-
--   Validate Schema
--   Trigger Schema Update
-
-Likelihood: **70--90%**
-
-------------------------------------------------------------------------
-
-## Phase 4 -- Content Development SDK
-
--   Reports
--   Dossiers
--   Cubes
--   Filters
--   Prompts
--   Users
--   Security
-
-Likelihood: **80--90%**
-
-------------------------------------------------------------------------
-
-## Phase 5 -- MCP Server
-
-Expose SDK functions as MCP tools:
-
--   login
--   list_projects
--   browse_folder
--   search_objects
--   get_object_details
--   execute_report
--   export_results
--   create_report
--   create_metric
--   create_attribute
-
-Likelihood: **100%**
-
-------------------------------------------------------------------------
-
-## Phase 6 -- AI Assistant
-
-Natural language requests such as:
-
--   Create Revenue metric
--   Build Customer attribute
--   Execute Sales report
--   Export report to Excel
-
-Likelihood: **90--95%**
-
-------------------------------------------------------------------------
+---
 
 # 8. Current Workflow
 
-    Login
-       ↓
-    Projects
-       ↓
-    Select Project
-       ↓
-    Browse Root Folder
-       ↓
-    Browse Folder
-       ↓
-    Search Objects
-       ↓
-    (Object Details - Next)
+```
+Login
+   │
+   ▼
 
-------------------------------------------------------------------------
+Select Project
+   │
+   ▼
+
+Create Changeset
+   │
+   ▼
+
+Browse Root Folder
+   │
+   ▼
+
+Browse Folder
+   │
+   ▼
+
+Search Objects
+   │
+   ▼
+
+Retrieve Object Details
+   │
+   ▼
+
+Report Definition
+   │
+   ▼
+
+Execute Report
+   │
+   ▼
+
+Retrieve Prompts
+   │
+   ▼
+
+Generate Prompt Payload
+   │
+   ▼
+
+Submit Answers
+   │
+   ▼
+
+Retrieve Report Data
+   │
+   ▼
+
+Delete Report Instance
+```
+
+---
 
 # 9. Deferred Features
 
--   Recursive project explorer
--   Metadata inventory
--   Full project crawler
+The following items are intentionally postponed.
 
-------------------------------------------------------------------------
+- Recursive Project Explorer
+- Metadata Inventory Generator
+- Full Project Crawl
+- Bulk Object Export
+- Object Dependency Analyzer
 
-# 10. Git History
+---
 
--   Refactor Menu class
--   Browse ALL Root Folders
+# 10. Recent Milestones
 
-------------------------------------------------------------------------
+Completed during the latest development cycle:
+
+- Report Definition API
+- Changeset API
+- Report Execution Workflow
+- Prompt Handling
+- Grid Metadata Parser
+- Cleaner CLI Output
+- Removal of Debug Logging
+- Production-ready Console Formatting
+
+---
 
 # 11. Future SDK Structure
 
-``` text
+```
 api/
 services/
 models/
+parsers/
 utils/
+tests/
 server.py
 ```
 
-------------------------------------------------------------------------
+---
 
-# 12. Future Documentation
+# 12. Planned Documentation
 
-Planned for `docs/`:
+The following documentation will be added under `docs/`.
 
--   Architecture diagram
--   Sequence diagram
--   CLI screenshots
--   Demo GIF
--   MCP tool reference
--   API reference
+- Architecture Guide
+- SDK Developer Guide
+- MCP Integration Guide
+- REST API Reference
+- Sequence Diagrams
+- CLI User Guide
+- Example Workflows
+- Contribution Guide
 
-------------------------------------------------------------------------
+---
 
-# 13. Success Tracking
+# 13. Progress Summary
 
-  Phase                   Status        Likelihood
-  ----------------------- ------------- ------------
-  Foundation & Metadata   In Progress   95--100%
-  Report SDK              Planned       95--100%
-  Modeling SDK            Planned       70--90%
-  Content SDK             Planned       80--90%
-  MCP Server              Planned       100%
-  AI Assistant            Planned       90--95%
+| Area | Status |
+|------|--------|
+| Foundation | ✅ Nearly Complete |
+| Metadata SDK | ✅ Nearly Complete |
+| Report SDK | 🚧 In Progress |
+| Modeling SDK | Planned |
+| Content SDK | Planned |
+| MCP Server | Planned |
+| AI Assistant | Planned |
 
-------------------------------------------------------------------------
+---
 
 # 14. Notes
 
-The SDK is the primary deliverable.
+The Python SDK remains the primary deliverable.
 
-The MCP server should remain a thin layer that exposes SDK functionality
-to AI assistants.
+The CLI is used only for interactive testing and demonstrations.
 
-Every new capability should first be implemented, tested, and documented
-in the SDK before being exposed as an MCP tool.
+The MCP Server will remain a thin wrapper over SDK functionality.
+
+Every new capability should:
+
+- Be implemented in the SDK
+- Be independently tested
+- Be documented
+- Be committed separately
+- Only then be exposed through the MCP Server
+
+This approach keeps the project maintainable, testable, and suitable for production-scale development.

@@ -1,35 +1,34 @@
 """
-Data Parser
+Row Builder
 
-Extracts the data section returned from a MicroStrategy
-Report Instance REST API response.
+Builds report rows from the MicroStrategy report response.
 
 Current Scope
 -------------
-- Row header indexes
-- Column header indexes
-- Raw metric values
-- Formatted metric values
+- Extract row header references.
+- Extract column header references.
+- Extract raw metric values.
+- Extract formatted metric values.
 
 Future Scope
 ------------
-- Build logical rows
-- Handle totals
-- Handle subtotals
-- Handle page-by
-- Produce report-ready records
+- Resolve header indexes to actual attribute values.
+- Combine attributes with metrics.
+- Build one dictionary per report row.
+- Support totals and subtotals.
+- Support page-by reports.
 """
 
 
-class DataParser:
+class RowBuilder:
     """
-    Parser for report data.
+    Builds report rows.
     """
 
     @staticmethod
-    def parse(report_json):
+    def build(report_json):
         """
-        Parse the report data section.
+        Build intermediate row structure.
 
         Parameters
         ----------
@@ -40,20 +39,9 @@ class DataParser:
         dict
         """
 
-        data = report_json.get(
-            "data",
-            {}
-        )
+        headers = report_json.get("headers", {})
 
-        headers = data.get(
-            "headers",
-            {}
-        )
-
-        metric_values = data.get(
-            "metricValues",
-            {}
-        )
+        metric_values = report_json.get("metricValues", {})
 
         return {
 

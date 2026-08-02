@@ -2,16 +2,6 @@
 Report Executor
 
 Responsible for executing a report from start to finish.
-
-Workflow
-
-1. Create report instance
-2. Retrieve prompt definitions
-3. If prompts exist:
-      - Collect answers
-      - Submit answers
-4. Retrieve report data
-5. Delete report instance
 """
 
 import json
@@ -41,24 +31,12 @@ from utils.printer import Printer
 from utils.grid_parser import GridParser
 from utils.header_parser import HeaderParser
 from utils.metric_parser import MetricParser
-from utils.data_parser import DataParser
-from utils.data_parser import DataParser
+from utils.element_resolver import ElementResolver
+from utils.dataset_builder import DatasetBuilder
+from utils.report_renderer import ReportRenderer
 
 
 def execute_report(client, report_id):
-    """
-    Execute a report.
-
-    Parameters
-    ----------
-    client : MSTRClient
-
-    report_id : str
-
-    Returns
-    -------
-    dict
-    """
 
     instance = None
 
@@ -92,7 +70,7 @@ def execute_report(client, report_id):
         )
 
         # --------------------------------------------------
-        # Handle Prompted Reports
+        # Prompt Handling
         # --------------------------------------------------
 
         if prompts:
@@ -136,76 +114,66 @@ def execute_report(client, report_id):
         print("\nRetrieving Report Data...")
         Printer.separator()
 
-        data = get_report_data(
+        response = get_report_data(
             client,
             report_id,
             instance["id"]
         )
 
         # --------------------------------------------------
-        # Parse Grid Definition
+        # Parse Report Metadata
         # --------------------------------------------------
 
         grid = GridParser.parse(
-            data["definition"]["grid"]
+            response["definition"]["grid"]
         )
-
-        # --------------------------------------------------
-        # Parse Report Headers
-        # --------------------------------------------------
 
         headers = HeaderParser.parse(
-            data["definition"]["grid"]
+            response
         )
-
-        # --------------------------------------------------
-        # Parse Report Metrics
-        # --------------------------------------------------
 
         metrics = MetricParser.parse(
-            data["definition"]["grid"]
+            response["definition"]["grid"]
         )
 
         # --------------------------------------------------
-        # Parse Report Data
+        # Resolve Grid
         # --------------------------------------------------
 
-        rows = DataParser.parse(
-            data
+        resolved_grid = ElementResolver.resolve(
+            response["definition"]["grid"],
+            response
         )
 
         # --------------------------------------------------
-        # Parse Report Data
+        # Build Dataset
         # --------------------------------------------------
 
-        rows = DataParser.parse(
-            data
+        dataset = DatasetBuilder.build(
+            resolved_grid
         )
 
         # --------------------------------------------------
-        # Temporary Verification
+        # Render Report
         # --------------------------------------------------
-        #
-        # GridParser, HeaderParser, MetricParser and
-        # DataParser are intentionally executed but not
-        # displayed. Future commits will use these parsed
-        # objects to build a production-quality report
-        # output.
-        #
-        # print(grid)
-        # print(headers)
-        # print(metrics)
-        # print(rows)
 
-        print("\n===== DATA SECTION =====")
-        print(
-            json.dumps(
-                data.get("data", {}),
-                indent=4
-            )
+        ReportRenderer.render(
+            response.get("name", "Report"),
+            dataset
         )
 
-        return data
+        # --------------------------------------------------
+        # Build Report Model
+        # --------------------------------------------------
+
+        report = {
+            "grid": grid,
+            "headers": headers,
+            "metrics": metrics,
+            "dataset": dataset
+        }
+
+        return report
 
     finally:
 
